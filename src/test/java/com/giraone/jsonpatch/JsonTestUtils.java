@@ -54,4 +54,21 @@ class JsonTestUtils {
         return node;
     }
 
+    public static ObjectNode buildLargeTestNode(int nrOfTopLevelFields) {
+        final ObjectNode node = new ObjectNode(FACTORY);
+        for (int i = 0; i < nrOfTopLevelFields; i++) {
+            node.put(String.format("field%08d", i), i);
+        }
+        return node;
+    }
+
+    public static ObjectNode modifyTestNode(ObjectNode before, int fieldChanges) {
+
+        final ObjectNode node = before.deepCopy();
+        for (int i = 0; i < fieldChanges; i++) {
+            int changedIndex = before.size() - 1 - i;
+            node.put(String.format("field%08d", changedIndex), changedIndex + 4711);
+        }
+        return node;
+    }
 }

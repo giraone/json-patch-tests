@@ -26,12 +26,37 @@ class PerformanceTest {
         "false, 100000, false",
         "true, 100000, false"
     })
-    void simpleLoopTest_for_JsonDiff_asJson(boolean useFge, int loops, boolean warmup) {
+    void loopTest_for_JsonDiff_asJson_smallSource(boolean useFge, int loops, boolean warmup) {
 
         // Run
         long totalNanos = 0L;
         for (int i = 0; i < loops; i++) {
-            totalNanos += oneRunJsonDiffAsJson(i, useFge);
+            totalNanos += oneRunJsonDiffAsJson_smallSource(i, useFge);
+        }
+
+        final long msPerCall = totalNanos / loops / 1000;
+        System.out.println("Average time for " + (useFge ? "FgeJsonPatch" : "FlipkartZJsonPatch") +
+            " JsonDiff.asJson() = " + msPerCall + " ms");
+        if (!warmup) {
+            assertThat(msPerCall).isLessThan(50L);
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "false, 10000, 100, 10, true",
+        "true, 10000, 100, 10, true",
+        "false, 100000, 100, 10, false",
+        "true, 100000, 100, 10, false",
+        "false, 100000, 200, 20, false",
+        "true, 100000, 200, 20, false"
+    })
+    void loopTest_for_JsonDiff_asJson_largeSource(boolean useFge, int loops, int nrOfFields, int nrOfChanges, boolean warmup) {
+
+        // Run
+        long totalNanos = 0L;
+        for (int i = 0; i < loops; i++) {
+            totalNanos += oneRunJsonDiffAsJson_largeSource(useFge, nrOfFields, nrOfChanges);
         }
 
         final long msPerCall = totalNanos / loops / 1000;
@@ -51,7 +76,7 @@ class PerformanceTest {
         "false, true, 100000, false",
         "true, false, 100000, false"
     })
-    void simpleLoopTest_for_JsonPatch_apply(boolean useFge, boolean inPlace, int loops, boolean warmup) throws JsonPatchException, IOException {
+    void loopTest_for_JsonPatch_apply(boolean useFge, boolean inPlace, int loops, boolean warmup) throws JsonPatchException, IOException {
 
         // Run
         long totalNanos = 0L;
@@ -69,7 +94,7 @@ class PerformanceTest {
 
     //------------------------------------------------------------------------------------------------------------------
 
-    long oneRunJsonDiffAsJson(int i, boolean useFge) {
+    long oneRunJsonDiffAsJson_smallSource(int i, boolean useFge) {
 
         ObjectNode before = JsonTestUtils.buildTestNode(Map.of(
             "intValue1", 1 + i,
@@ -105,6 +130,26 @@ class PerformanceTest {
             end = System.nanoTime();
         }
         assertThat(patch.size()).isEqualTo(5);
+        return end - start;
+    }
+
+    long oneRunJsonDiffAsJson_largeSource(boolean useFge, int nrOfFields, int nrOfChanges) {
+
+        ObjectNode before = JsonTestUtils.buildLargeTestNode(nrOfFields);
+        ObjectNode after = JsonTestUtils.modifyTestNode(before, nrOfChanges);
+
+        final long start, end;
+        JsonNode patch;
+        if (useFge) {
+            start = System.nanoTime();
+            patch = com.github.fge.jsonpatch.diff.JsonDiff.asJson(before, after);
+            end = System.nanoTime();
+        } else {
+            start = System.nanoTime();
+            patch = com.flipkart.zjsonpatch.JsonDiff.asJson(before, after, flags_flipkart);
+            end = System.nanoTime();
+        }
+        assertThat(patch.size()).isEqualTo(nrOfChanges);
         return end - start;
     }
 

@@ -69,14 +69,16 @@ assertThat(patch).containsExactlyInAnyOrder(
 
 ## Performance tests
 
-| Method                                  | `com.flipkart.zjsonpatch:zjsonpatch` | `com.github.java-json-tools:json-patch` |
-|-----------------------------------------|--------------------------------------|-----------------------------------------|
-| patch = JsonDiff.asJson(before, after)  | 5 - 50 ms                            | 10 - 150 ms                             |
-| after = JsonPatch.apply(patch, before)  | 3 ms                                 | 5 ms                                    |
-| JsonPatch.applyInPlace(patch, before)   | 2 - 3 ms                             | n/a                                     |
+| Method                                  | fields / changes | `com.flipkart.zjsonpatch:zjsonpatch` | `com.github.java-json-tools:json-patch` |
+|-----------------------------------------|------------------|--------------------------------------|-----------------------------------------|
+| patch = JsonDiff.asJson(before, after)  | 5-8 / 5          | 5 ms                                 | 10 - 12 ms                              |
+| patch = JsonDiff.asJson(before, after)  | 100 / 10         | 9-10 ms                              | 127 - 131 ms                            |
+| patch = JsonDiff.asJson(before, after)  | 200 / 20         | 19 ms                                | 295 ms                                  |
+| after = JsonPatch.apply(patch, before)  | 5-8 / 5          | 3 ms                                 | 5 ms                                    |
+| JsonPatch.applyInPlace(patch, before)   | 5-8 / 5          | 2 - 3 ms                             | n/a                                     |
 
 The tests are simple Unit tests (no usage of [JMH](http://tutorials.jenkov.com/java-performance/jmh.html)),
-but they use a warm-up phase and a configurable numbers of loops.
+but they use a warm-up phase and a configurable numbers of loops (100.000 after 10.000 in warm-up).
 
 Test environment for figures above:
 - OS: `Windows 10.0.18362`

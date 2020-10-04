@@ -3,9 +3,11 @@ package com.giraone.jsonpatch;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.util.List;
 import java.util.Map;
 
 class JsonTestUtils {
@@ -44,4 +46,12 @@ class JsonTestUtils {
         }
         return node;
     }
+
+    public static ArrayNode buildJsonPatchNodes(List<ObjectNode> patchNodes) {
+
+        final ArrayNode node = new ArrayNode(FACTORY);
+        node.addAll(patchNodes);
+        return node;
+    }
+
 }

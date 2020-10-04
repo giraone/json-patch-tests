@@ -69,16 +69,18 @@ assertThat(patch).containsExactlyInAnyOrder(
 
 ## Performance tests
 
-| Method                          | `com.flipkart.zjsonpatch:zjsonpatch` | `com.github.java-json-tools:json-patch` |
-|---------------------------------|--------------------------------------|-----------------------------------------|
-| JsonDiff.asJson(before, after)  | 5 - 50 ms                            | 10 - 150 ms                             |
+| Method                                  | `com.flipkart.zjsonpatch:zjsonpatch` | `com.github.java-json-tools:json-patch` |
+|-----------------------------------------|--------------------------------------|-----------------------------------------|
+| patch = JsonDiff.asJson(before, after)  | 5 - 50 ms                            | 10 - 150 ms                             |
+| after = JsonPatch.apply(patch, before)  | 3 ms                                 | 5 ms                                    |
+| JsonPatch.applyInPlace(patch, before)   | 2 - 3 ms                             | n/a                                     |
 
-The tests are simple Unit-Tests (no usage of [JMH](http://tutorials.jenkov.com/java-performance/jmh.html),
+The tests are simple Unit tests (no usage of [JMH](http://tutorials.jenkov.com/java-performance/jmh.html)),
 but they use a warm-up phase and a configurable numbers of loops.
 
 Test environment for figures above:
-- OS: Windows 10.0.18362
-- CPU: i7-4910MQ 2.9 GHz
+- OS: `Windows 10.0.18362`
+- CPU: `i7-4910MQ 2.9 GHz`
 - Java:
 ```
 openjdk 11.0.8 2020-07-14
@@ -87,3 +89,9 @@ OpenJDK 64-Bit Server VM JBR-11.0.8.10-944.31-jcef (build 11.0.8+10-b944.31, mix
 ```
 
 Result: `com.flipkart.zjsonpatch:zjsonpatch` shows a better performance.
+
+## Hints
+
+- When using *com.flipkart.zjsonpatch* and `DiffFlags.dontNormalizeOpIntoMoveAndCopy()``the remove
+  operations contains also the removed value. If this flags is not used and if *com.github.java-json-tools*,
+  the value of a remove op is empty.

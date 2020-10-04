@@ -31,6 +31,13 @@
 			<version>0.4.11</version>
 		</dependency>
 
+		<!-- https://github.com/java-json-tools/json-patch -->
+		<dependency>
+			<groupId>com.github.java-json-tools</groupId>
+			<artifactId>json-patch</artifactId>
+			<version>1.13</version>
+		</dependency>
+
 		<!-- Test Dependencies -->
 
 		<dependency>
